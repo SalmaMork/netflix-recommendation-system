@@ -58,8 +58,13 @@ def recommend(title, num_recommendations=5, content_type="All"):
     sim_scores = list(enumerate(cosine_sim[idx]))
     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
 
-    similar_indices = [i[0] for i in sim_scores[1:30]]
-    recs = df.iloc[similar_indices][['title', 'type', 'listed_in', 'description']].copy()
+    # Rank all other titles by similarity
+    similar_indices = [i for i, score in sim_scores if i != idx]
+
+    # Apply the content-type filter before limiting results
+    recs = df.iloc[similar_indices][
+        ['title', 'type', 'listed_in', 'description']
+    ].copy()
 
     if content_type != "All":
         recs = recs[recs['type'] == content_type]
