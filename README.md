@@ -105,8 +105,9 @@ Breaking Bad
 Output:
 
 * Better Call Saul
-* The Lincoln Lawyer
-* Other similar crime/drama content
+* Other titles ranked by TF-IDF cosine similarity
+
+Recommendations depend on the selected title and content-type filter.
 
 ---
 
