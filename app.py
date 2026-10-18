@@ -38,12 +38,11 @@ def load_data():
 def build_model(dataframe):
     tfidf = TfidfVectorizer(stop_words='english')
     tfidf_matrix = tfidf.fit_transform(dataframe['combined_features'])
-    cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
     indices = pd.Series(dataframe.index, index=dataframe['title'].str.lower()).drop_duplicates()
-    return cosine_sim, indices
+    return tfidf_matrix, indices
 
 df = load_data()
-cosine_sim, indices = build_model(df)
+tfidf_matrix, indices = build_model(df)
 
 # -----------------------------
 # Recommendation function
@@ -55,8 +54,17 @@ def recommend(title, num_recommendations=5, content_type="All"):
         return pd.DataFrame()
 
     idx = indices[title_lower]
-    sim_scores = list(enumerate(cosine_sim[idx]))
-    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    # Calculate similarity only for the selected title
+    similarities = cosine_similarity(
+        tfidf_matrix[idx],
+        tfidf_matrix
+    ).flatten()
+
+    sim_scores = sorted(
+        enumerate(similarities),
+        key=lambda x: x[1],
+        reverse=True
+    )
 
     # Rank all other titles by similarity
     similar_indices = [i for i, score in sim_scores if i != idx]
